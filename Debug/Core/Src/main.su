@@ -1,0 +1,17 @@
+../Core/Src/main.c:91:6:HAL_UART_RxCpltCallback	16	static
+../Core/Src/main.c:170:6:Read_AD_Conversion	80	static
+../Core/Src/main.c:289:6:Transmet_computer	32	static
+../Core/Src/main.c:318:6:Set_PWM_Frequency	24	static
+../Core/Src/main.c:346:6:Start_motor	24	static
+../Core/Src/main.c:367:6:Up_fequency	16	static
+../Core/Src/main.c:381:6:Stop_motor	16	static
+../Core/Src/main.c:388:6:Moving_away_from_borders	24	static
+../Core/Src/main.c:416:5:main	40	static
+../Core/Src/main.c:595:6:SystemClock_Config	88	static
+../Core/Src/main.c:641:13:MX_ADC1_Init	24	static
+../Core/Src/main.c:693:13:MX_ADC2_Init	24	static
+../Core/Src/main.c:745:13:MX_TIM2_Init	48	static
+../Core/Src/main.c:794:13:MX_TIM3_Init	48	static
+../Core/Src/main.c:843:13:MX_USART2_UART_Init	8	static
+../Core/Src/main.c:876:13:MX_GPIO_Init	48	static
+../Core/Src/main.c:911:6:Error_Handler	4	static,ignoring_inline_asm
