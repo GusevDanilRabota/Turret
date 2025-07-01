@@ -113,60 +113,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) // 0.595 мкс
     HAL_UART_Receive_IT(&huart2, (uint8_t*)Target.Rx_data, Size_Rx_UART);
 }
 
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) // 9.17 мкс
-//{
-//	const size_t data_size = sizeof(Target.Rx_data);
-//	Target.Rx_data[data_size - 1] = '\0';
-//
-//	char *az_ptr = strstr(Target.Rx_data, "Az");
-//	char *el_ptr = strstr(Target.Rx_data, "El");
-//	char *fm_ptr = strstr(Target.Rx_data, "Fm");
-//
-//	if (az_ptr == NULL || el_ptr == NULL || fm_ptr == NULL || *(az_ptr + 2) == '\0' || *(el_ptr + 2) == '\0' || *(fm_ptr + 2) == '\0')
-//	{
-//		HAL_UART_Receive_IT(&huart2, (uint8_t*)Target.Rx_data, data_size);
-//		return;
-//	}
-//
-//	Target.Azimuth_difference =   atof(az_ptr + 2) / 10;
-//	Target.Elevation_difference = atof(el_ptr + 2) / 10;
-//	Target.Fire_mode =            atof(fm_ptr + 2);
-//
-//	HAL_UART_Receive_IT(&huart2, (uint8_t*)Target.Rx_data, data_size);
-//};
-
-//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) // 2.98 мкс
-//{
-//	const size_t data_size = sizeof(Target.Rx_data);
-//	Target.Rx_data[data_size - 1] = '\0';
-//
-//	char *az_ptr = strstr(Target.Rx_data, "Az");
-//	char *el_ptr = strstr(Target.Rx_data, "El");
-//	char *fm_ptr = strstr(Target.Rx_data, "Fm");
-//
-//	if (az_ptr == NULL || el_ptr == NULL || fm_ptr == NULL || *(az_ptr + 2) == '\0' || *(el_ptr + 2) == '\0' || *(fm_ptr + 2) == '\0')
-//	{
-//		HAL_UART_Receive_IT(&huart2, (uint8_t*)Target.Rx_data, data_size);
-//		return;
-//	}
-//
-//	Motor_AZ.Status.Angular = 0;
-//	Motor_AZ.Status.Angular =  (Target.Rx_data[3] - '0') * 100;
-//	Motor_AZ.Status.Angular += (Target.Rx_data[4] - '0') * 10;
-//	Motor_AZ.Status.Angular += (Target.Rx_data[5] - '0');
-//	Motor_AZ.Status.Angular += (Target.Rx_data[6] - '0') * 0.1f;
-//	Motor_AZ.Status.Angular *= (Target.Rx_data[2] == '+') ? 1 : -1;
-//
-//	Motor_EL.Status.Angular = 0;
-//	Motor_EL.Status.Angular =  (Target.Rx_data[10] - '0') * 100;
-//	Motor_EL.Status.Angular += (Target.Rx_data[11] - '0') * 10;
-//	Motor_EL.Status.Angular += (Target.Rx_data[12] - '0');
-//	Motor_EL.Status.Angular += (Target.Rx_data[13] - '0') * 0.1;
-//	Motor_EL.Status.Angular *= (Target.Rx_data[9] == '+') ? 1 : -1;
-//
-//	HAL_UART_Receive_IT(&huart2, (uint8_t*)Target.Rx_data, data_size);
-//};
-
 void Read_AD_Conversion(Motor *Motor_xx) // 2.02 мкс
 {
 	ADC_HandleTypeDef* hadc = Motor_xx->Config.Convertor.Convertor;
@@ -210,45 +156,6 @@ void Read_AD_Conversion(Motor *Motor_xx) // 2.02 мкс
 	status->Angular = filtered_angular;
 };
 
-//void Read_AD_Conversion(Motor *Motor_xx) // 2.37 мкс
-//{
-//	uint32_t TimeOut = 100;
-//
-//	HAL_ADC_Start(Motor_xx->Config.Convertor.Convertor);
-//	if (HAL_ADC_PollForConversion(Motor_xx->Config.Convertor.Convertor, TimeOut) == HAL_OK)
-//	{
-//		const uint32_t raw_value = HAL_ADC_GetValue(Motor_xx->Config.Convertor.Convertor);
-//		HAL_ADC_Stop(Motor_xx->Config.Convertor.Convertor);
-//
-//		const float alfa = Motor_xx->Config.Alfa;
-//		const float one_minus_alfa = 1.0f - alfa;
-//
-//		float filtered_discrete = alfa * (float)raw_value + one_minus_alfa * Motor_xx->Status.filtered_Discrete_level;
-//		Motor_xx->Status.filtered_Discrete_level = filtered_discrete;
-//
-//		const float discrete_range = (float)(Motor_xx->Config.Convertor.Maximum_discrete_level - Motor_xx->Config.Convertor.Minimum_discrete_level);
-//		const float angular_range = Motor_xx->Config.Angular.Maximum_angular - Motor_xx->Config.Angular.Minimum_angular;
-//
-//		float norma = 0.0f;
-//		if (discrete_range > 0.0f)
-//		{
-//			norma = (filtered_discrete - (float)Motor_xx->Config.Convertor.Minimum_discrete_level) / discrete_range;
-//			norma = CLAMP(norma, 0.0f, 1.0f);
-//		};
-//
-//		float angular = Motor_xx->Config.Angular.Minimum_angular + norma * angular_range;
-//		float filtered_angular = alfa * angular + one_minus_alfa * Motor_xx->Status.filter_Angular;
-//		Motor_xx->Status.filter_Angular = filtered_angular;
-//
-//		Motor_xx->Status.Discrete_level = filtered_discrete;
-//		Motor_xx->Status.Angular = filtered_angular;
-//	}
-//	else
-//	{
-//		HAL_ADC_Stop(Motor_xx->Config.Convertor.Convertor);
-//	};
-//};
-
 __attribute__((always_inline)) inline char Working_area(Motor *Motor_xx) // 0.31 мкс
 {
     register const float a = Motor_xx->Status.Angular;
@@ -258,62 +165,28 @@ __attribute__((always_inline)) inline char Working_area(Motor *Motor_xx) // 0.31
     return (a > lower) & (a < upper);
 };
 
-//__attribute__((always_inline)) inline char Working_area(Motor *Motor_xx) // 0.37 мкс
-//{
-//    register const float angle = Motor_xx->Status.Angular;
-//    register const float* cfg = &Motor_xx->Config.Angular.Minimum_angular;
-//
-//    return (angle > (cfg[0] + cfg[3])) && (angle < (cfg[1] - cfg[3]));
-//};
-
-//char Working_area(Motor *Motor_xx) // 0.95 мкс
-//{
-//    const float current_angle = Motor_xx->Status.Angular;
-//    const float min_angle = Motor_xx->Config.Angular.Minimum_angular;
-//    const float max_angle = Motor_xx->Config.Angular.Maximum_angular;
-//    const float deviation = Motor_xx->Config.Angular.Deviation;
-//
-//    const float lower_bound = min_angle + deviation;
-//    const float upper_bound = max_angle - deviation;
-//
-//    return (current_angle > lower_bound) && (current_angle < upper_bound);
-//};
-
-//char Working_area(Motor *Motor_xx) // 1.43 мкс
-//{
-//	return ((Motor_xx->Status.Angular > (Motor_xx->Config.Angular.Minimum_angular + Motor_xx->Config.Angular.Deviation)) && (Motor_xx->Status.Angular < (Motor_xx->Config.Angular.Maximum_angular - Motor_xx->Config.Angular.Deviation)) ) ? 1 : 0;
-//};
-
-
-
 void Transmet_computer(void)
 {
-	uint32_t TimeOut = 100;
+    const int32_t az_tenths = (int32_t)(Motor_AZ.Status.Angular * 10.0f);
+    const uint16_t az_abs = (az_tenths < 0) ? -az_tenths : az_tenths;
 
-	float az_angle = Motor_AZ.Status.Angular;
-	float el_angle = Motor_EL.Status.Angular;
+    Target.Tx_data[1] = '1' - (az_tenths >> 31);
+    Target.Tx_data[2] = '0' + (az_abs / 1000);
+    Target.Tx_data[3] = '0' + (az_abs % 1000 / 100);
+    Target.Tx_data[4] = '0' + (az_abs % 100 / 10);
+    Target.Tx_data[5] = '0' + (az_abs % 10);
 
-	uint16_t angular_az = (uint16_t)((az_angle < 0 ? -az_angle : az_angle) * 10.0f);
-	uint16_t angular_el = (uint16_t)((el_angle < 0 ? -el_angle : el_angle) * 10.0f);
+    const int32_t el_tenths = (int32_t)(Motor_EL.Status.Angular * 10.0f);
+    const uint16_t el_abs = (el_tenths < 0) ? -el_tenths : el_tenths;
 
-	Target.Tx_data[1] = (az_angle >= 0) ? '1' : '0';
-	Target.Tx_data[6] = (el_angle >= 0) ? '1' : '0';
+    Target.Tx_data[6] = '1' - (el_tenths >> 31);
+    Target.Tx_data[7] = '0' + (el_abs / 1000);
+    Target.Tx_data[8] = '0' + (el_abs % 1000 / 100);
+    Target.Tx_data[9] = '0' + (el_abs % 100 / 10);
+    Target.Tx_data[10] = '0' + (el_abs % 10);
 
-	uint16_t num = angular_az;
-	Target.Tx_data[5] = '0' + num % 10; num /= 10;
-	Target.Tx_data[4] = '0' + num % 10; num /= 10;
-	Target.Tx_data[3] = '0' + num % 10; num /= 10;
-	Target.Tx_data[2] = '0' + num % 10;
-
-	// Оптимизированное преобразование цифр для угла места
-	num = angular_el;
-	Target.Tx_data[10] = '0' + num % 10; num /= 10;
-	Target.Tx_data[9] = '0' + num % 10; num /= 10;
-	Target.Tx_data[8] = '0' + num % 10; num /= 10;
-	Target.Tx_data[7] = '0' + num % 10;
-
-	HAL_UART_Transmit(&huart2, (uint8_t*)Target.Tx_data, Size_Tx_UART, TimeOut);
-};
+    HAL_UART_Transmit(&huart2, (uint8_t*)Target.Tx_data, 13, 100);
+}
 
 void Set_PWM_Frequency(Motor *Motor_xx, uint32_t freq)
 {
